@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["kozy4324@mapion.co.jp"]
   spec.summary       = %q{JRuby + Rackサーバー でSolr Web APIのjavabin形式でレスポンスする簡易テスト用サーバー}
   spec.description   = %q{JRuby + Rackサーバー でSolr Web APIのjavabin形式でレスポンスする簡易テスト用サーバー}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/kozy4324/solr_like_rack_server"
   spec.license       = "MIT"
 
   spec.platform      = "java"
