@@ -9,14 +9,19 @@ module SolrLikeRackServer
   class << self
     def start mount_procs
       wakeupProc = nil
-      server = WEBrick::HTTPServer.new(
+      opt = {
         Port: 12345,
         Logger: WEBrick::Log.new('/dev/null'),
         AccessLog: [],
         StartCallback: Proc.new {
           wakeupProc.call unless wakeupProc.nil?
         }
-      )
+      }
+      unless ENV["SOLR_LIKE_RACK_SERVER_VERBOSE"].nil?
+        opt.delete :Logger
+        opt.delete :AccessLog
+      end
+      server = WEBrick::HTTPServer.new opt
       mount_procs.each {|path, proc|
         server.mount_proc(path) {|req, res|
           res["Content-Type"] = "application/octet-stream"
