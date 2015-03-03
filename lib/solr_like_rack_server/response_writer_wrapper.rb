@@ -43,7 +43,7 @@ module SolrLikeRackServer
         }
         docList.add doc
       }
-      docList.setNumFound data["numFound"] || data.size
+      docList.setNumFound data["numFound"] || data["docs"].size
       docList.setStart 0
       docList.setMaxScore 1.0
       res = SolrQueryResponse.new
