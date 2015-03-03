@@ -1,3 +1,5 @@
-- poi_code: G0123456789
-  category1_code:
-    - M01
+numFound: 1234
+docs:
+  - poi_code: G0123456789
+    category1_code:
+      - M01
