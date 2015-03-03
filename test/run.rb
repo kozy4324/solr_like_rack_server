@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# coding: utf-8
 
 require "pathname"
 p_dir = Pathname.new("#{__FILE__}/../../").realpath.to_s
@@ -14,6 +15,11 @@ docs:
   - poi_code: G0123456789
     category1_code:
       - M01
+facets:
+  pref_ddd:
+    - "13:東京都": 12039
+  area_code:
+    - "002": 24849
 EOM
 
 SolrLikeRackServer.server(
@@ -23,4 +29,8 @@ SolrLikeRackServer.server(
   client.executeQuery
   puts client.getBeans(Java::jp.co.mapion.solr.client.beans.Phone.java_class).get(0).poi_code
   puts client.getNumFound
+  facet = client.getFacetList("pref_ddd")[0]
+  puts facet.code
+  puts facet.name
+  puts facet.count
 }

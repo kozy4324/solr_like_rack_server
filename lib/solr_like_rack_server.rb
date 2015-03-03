@@ -25,14 +25,21 @@ module SolrLikeRackServer
       mount_procs.each {|path, proc|
         server.mount_proc(path) {|req, res|
           res["Content-Type"] = "application/octet-stream"
-          data = if Array === proc
-            proc
-          elsif Hash === proc
-            [proc]
-          elsif proc.arity == 0
-            proc.call
+          data = if Proc === proc
+            if proc.arity == 0
+              proc.call
+            else
+              proc.call req.query
+            end
           else
-            proc.call(req.query)
+            proc
+          end
+          data = if Array === data
+            {"docs"=>data}
+          elsif Hash === data
+            data["docs"] = [] unless data.has_key? "docs"
+            data["facets"] = {} unless data.has_key? "facets"
+            data
           end
           res.body = SolrLikeRackServer::ResponseWriterWrapper.new.write data
         }

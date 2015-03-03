@@ -34,16 +34,29 @@ module SolrLikeRackServer
     # SolrQueryResponse
     def response data
       docList = SolrDocumentList.new
-      data.each {|d|
+      # docs
+      data["docs"].each {|d|
         doc = SolrDocument.new
         d.each {|k,v| doc.setField k, v }
         docList.add doc
       }
-      docList.setNumFound data.size
+      docList.setNumFound data["numFound"] || data.size
       docList.setStart 0
       docList.setMaxScore 1.0
       res = SolrQueryResponse.new
       res.add "response", docList
+      # facets
+      if data.has_key? "facets"
+        facet_counts = NamedList.new
+        res.add "facet_counts", facet_counts
+        facet_fields = NamedList.new
+        facet_counts.add "facet_fields", facet_fields
+        data["facets"].each {|facet_key, facet_data|
+          facet = NamedList.new
+          facet_fields.add facet_key, facet
+          facet_data.each {|f| f.each {|k, v| facet.add k, v } }
+        }
+      end
       res
     end
 
