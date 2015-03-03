@@ -9,7 +9,7 @@ require "solr_like_rack_server"
 $CLASSPATH << "#{p_dir}/test/localsearch-client-1.0.13-jar-with-dependencies.jar"
 java_import Java::jp.co.mapion.solr.client.core.LocalSearchClient
 
-data = YAML.load <<EOM
+map_mini = YAML.load <<EOM
 numFound: 1234
 docs:
   - poi_code: G0123456789
@@ -21,9 +21,21 @@ facets:
   area_code:
     - "002": 24849
 EOM
+reco_city = YAML.load <<EOM
+- pref_code: "13"
+  pref_name: 東京都
+  city_code: "13101"
+  city_name: 東京都千代田区
+  category2_code: M01001
+  category2_name: M01001の名前
+  station_code: ST12345
+  station_name: 東京駅
+  poi_num: 100
+EOM
 
 SolrLikeRackServer.server(
-  "/search/map_mini/select"=>data
+  "/search/map_mini/select"=>map_mini,
+  "/search/reco_city/select"=>reco_city,
 ) {
   client = LocalSearchClient.new "map_mini"
   client.executeQuery
@@ -33,4 +45,9 @@ SolrLikeRackServer.server(
   puts facet.code
   puts facet.name
   puts facet.count
+
+  client = LocalSearchClient.new "reco_city"
+  client.executeQuery
+  puts client.getBeans(Java::jp.co.mapion.solr.client.beans.Recommendation.java_class).get(0).pref_code
+  puts client.getNumFound
 }

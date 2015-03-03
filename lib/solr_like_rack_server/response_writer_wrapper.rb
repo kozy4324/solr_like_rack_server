@@ -37,7 +37,10 @@ module SolrLikeRackServer
       # docs
       data["docs"].each {|d|
         doc = SolrDocument.new
-        d.each {|k,v| doc.setField k, v }
+        d.each {|k,v|
+          v = Java::java.lang.Integer.new(v) if Fixnum === v
+          doc.setField k, v
+        }
         docList.add doc
       }
       docList.setNumFound data["numFound"] || data.size
