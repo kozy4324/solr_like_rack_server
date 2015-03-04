@@ -6,6 +6,8 @@ require "solr_like_rack_server/version"
 require "solr_like_rack_server/response_writer_wrapper"
 
 module SolrLikeRackServer
+  PORT = ENV["SOLR_LIKE_RACK_SERVER_PORT"] || 12345
+
   class << self
     def server
       @server ||= create_server
@@ -13,7 +15,7 @@ module SolrLikeRackServer
 
     def create_server
       opt = {
-        Port: 12345,
+        Port: SolrLikeRackServer::PORT,
         Logger: WEBrick::Log.new('/dev/null'),
         AccessLog: [],
         StartCallback: Proc.new {
