@@ -51,3 +51,12 @@ SolrLikeRackServer.start(
   puts client.getBeans(Java::jp.co.mapion.solr.client.beans.Recommendation.java_class).get(0).pref_code
   puts client.getNumFound
 }
+
+SolrLikeRackServer.start(
+  "/search/map_mini2/select"=>map_mini,
+) {
+  client = LocalSearchClient.new "map_mini2"
+  client.executeQuery
+  puts client.getBeans(Java::jp.co.mapion.solr.client.beans.Phone.java_class).get(0).poi_code
+  puts client.getNumFound
+}

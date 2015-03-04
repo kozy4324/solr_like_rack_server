@@ -7,7 +7,11 @@ require "solr_like_rack_server/response_writer_wrapper"
 
 module SolrLikeRackServer
   class << self
-    def start mount_procs
+    def server
+      @server ||= create_server
+    end
+
+    def create_server
       opt = {
         Port: 12345,
         Logger: WEBrick::Log.new('/dev/null'),
@@ -21,8 +25,20 @@ module SolrLikeRackServer
         opt.delete :AccessLog
       end
       server = WEBrick::HTTPServer.new opt
-      mount_procs.each {|path, proc|
-        server.mount_proc(path) {|req, res|
+      Thread.new do
+        server.start
+      end
+      Thread.stop
+      at_exit {
+        server.shutdown
+      }
+      server
+    end
+
+    def start mount_procs
+      mounted = []
+      mount_procs.each {|dir, proc|
+        server.mount_proc(dir) {|req, res|
           res["Content-Type"] = "application/octet-stream"
           data = if Proc === proc
             if proc.arity == 0
@@ -42,16 +58,12 @@ module SolrLikeRackServer
           end
           res.body = SolrLikeRackServer::ResponseWriterWrapper.new.write data
         }
+        mounted << dir
       }
-      server_thread = Thread.new do
-        Thread.current[:server] = server
-        server.start
-      end
-      Thread.stop
       begin
         yield
       ensure
-        server_thread[:server].shutdown
+        mounted.each {|dir| server.unmount dir }
       end
     end
   end
