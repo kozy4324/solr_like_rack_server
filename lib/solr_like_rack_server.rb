@@ -54,7 +54,5 @@ module SolrLikeRackServer
         server_thread[:server].shutdown
       end
     end
-
-    alias_method :server, :start
   end
 end

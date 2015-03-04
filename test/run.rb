@@ -33,7 +33,7 @@ reco_city = YAML.load <<EOM
   poi_num: 100
 EOM
 
-SolrLikeRackServer.server(
+SolrLikeRackServer.start(
   "/search/map_mini/select"=>map_mini,
   "/search/reco_city/select"=>reco_city,
 ) {
