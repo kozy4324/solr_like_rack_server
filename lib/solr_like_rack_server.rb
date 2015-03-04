@@ -8,13 +8,12 @@ require "solr_like_rack_server/response_writer_wrapper"
 module SolrLikeRackServer
   class << self
     def start mount_procs
-      wakeupProc = nil
       opt = {
         Port: 12345,
         Logger: WEBrick::Log.new('/dev/null'),
         AccessLog: [],
         StartCallback: Proc.new {
-          wakeupProc.call unless wakeupProc.nil?
+          Thread.main.wakeup
         }
       }
       unless ENV["SOLR_LIKE_RACK_SERVER_VERBOSE"].nil?
@@ -44,20 +43,15 @@ module SolrLikeRackServer
           res.body = SolrLikeRackServer::ResponseWriterWrapper.new.write data
         }
       }
-      if block_given?
-        wakeupProc = Proc.new { Thread.main.wakeup }
-        server_thread = Thread.new do
-          Thread.current[:server] = server
-          server.start
-        end
-        Thread.stop
-        begin
-          yield
-        ensure
-          server_thread[:server].shutdown
-        end
-      else
-        server
+      server_thread = Thread.new do
+        Thread.current[:server] = server
+        server.start
+      end
+      Thread.stop
+      begin
+        yield
+      ensure
+        server_thread[:server].shutdown
       end
     end
 
